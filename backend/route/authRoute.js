@@ -1,4 +1,9 @@
 import express from 'express';
-import jwt from 'jsonwebtoken';
+import { register, login, logout } from '../controller/authController.js';
+const router=express.Router();
+router.post('/register',register);
+router.get('/login',login);
+router.post('/logout',logout);
 
+module.exports=router;
 

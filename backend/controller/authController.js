@@ -3,6 +3,8 @@ import express from "express";
 import user from "../model/userSch.js";
 import bycrpt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { access } from "fs";
+import passport from "passport";
 
 export const register=async(req,res)=>{
     const {name,email,password}=req.body;
@@ -50,4 +52,12 @@ export const login=async (req,res)=>{
         });
         console.log("User logged in successfully");
 };
+export const logout=async(req,res)=>{
+    req.logout((err)=>{
+        if(err){
+            return res.status(500).json({message:"Error during logout"});
+        }
+        res.status(200).json({message:"logout successful"});
+    })
+}
 
