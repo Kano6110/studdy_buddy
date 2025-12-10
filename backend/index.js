@@ -7,10 +7,12 @@ dotenv.config({ path: path.resolve("./.env") });
 import session from 'express-session';
 import "./passport.js";
 import passport from 'passport';
+import router from './route/authRoute.js';
 
 
 const app=express();
 app.use(express.json());
+app.use(express.urlencoded({extended:true}));
 app.use(cors());
 app.use(
   session({
@@ -22,6 +24,9 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+app.use('/api/auth',router);
+
+
 //google route
 app.get('/auth/google',
     passport.authenticate("google",{scope:["profile","email"]})
@@ -30,6 +35,7 @@ app.get('/auth/google/callback',
     passport.authenticate("google",{
         failureRedirect:'/login',}),
         (req,res)=>{
+            const token = jwt.sign({ id: user._id, email: user.email }, process.env.JWT_SECRET, { expiresIn: '1h' });
             res.redirect('http://localhost:5173/home');
         }
 );

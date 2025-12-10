@@ -1,31 +1,45 @@
 import mongoose from "mongoose";
-import express from "express";
-import user from "../model/userSch.js";
-import bycrpt from "bcryptjs";
+import user from"../schema/user_Schema.js";
+import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { access } from "fs";
-import passport from "passport";
+import express from "express";
 
-export const register=async(req,res)=>{
-    const {name,email,password}=req.body;
-    const isexistuser=await user.findOne({email:email});
-    if(isexistuser){
-        return res.status(400).json({message:"User already exist"});
+
+export const register = async (req, res) => {
+    const { name, email, password } = req.body;
+
+    console.log("Received body:", req.body);
+
+    const isexistuser = await user.findOne({ email: email });
+    if (isexistuser) {
+        return res.status(400).json({ message: "User already exists" });
     }
-    try{
-    const hashedpassword=await bycrpt.hash(password,10);
-    const newuser= new user({
-        _id:new mongoose.Types.ObjectId(),
-        name:name,
-        email:email,
-        password_hash:hashedpassword,
-    });
-}    catch(error){
-    console.error("Error during user registration:", error);
-    return res.status(500).json({ message: "Internal server error during registration" });
-}
 
+    try {
+        if (!password) {
+            return res.status(400).json({ message: "Password is required" });
+        }
+
+        const hashedpassword = await bcrypt.hash(password, 10);
+        console.log("Hashed password:", hashedpassword);
+
+        const newuser = new user({
+            _id: new mongoose.Types.ObjectId(),
+            name,
+            email,
+            passwordHash: hashedpassword,
+        });
+
+        await newuser.save();
+
+        return res.status(201).json({ message: "User registered successfully" });
+
+    } catch (error) {
+        console.error("Error during user registration:", error);
+        return res.status(500).json({ message: "Internal server error" });
+    }
 };
+
 
 export const login=async (req,res)=>{
     const {email,password}=req.body;
@@ -34,7 +48,7 @@ export const login=async (req,res)=>{
         return res.status(404).json({message:"User not found"});
     }
     
-        const isMatch=await bycrpt.compare(password,exist.password_hash);
+        const isMatch=await bcrypt.compare(password,exist.passwordHash);
         if(!isMatch){
             return res.status(401).json({message:"Invalid credentials"});
         }

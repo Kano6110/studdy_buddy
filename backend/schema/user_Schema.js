@@ -1,51 +1,62 @@
-import { create } from "domain";
 import mongoose from "mongoose";
-import { type } from "os";
 
-const useSchema=new mongoose.Schema({
-    _id:{
-        type:mongoose.Schema.Types.ObjectId,
-        required:true,
+const userSchema = new mongoose.Schema(
+  {
+    googleID: {
+      type: String,
+      unique: true,
+      sparse: true,
     },
-    name:{
-        type:String,
-        required:true,
+    name: {
+      type: String,
+      required: true,
+      trim: true,
     },
-    email:{
-        type:String,
-        required:true,
-        unique:true,
-    },
-    role:{
-        type:String,
-        enum:['student','tutor','admin'],
-        default:'student',
-    },
-    password_hash:{
-        type:String,
-        required:true,
-    },
-    avatar_url:{
-        type:String,
-        default:'',
-    },
-    bio:{
-        type:String,
-        default:'', 
-    },
-    subjects:{
-        type:[String],
-        default:[],
-    },
-    availability:{
-        type:[String],
-        default:[],
-    },
-    created_at:{
-        type:Date,
-        default:Date.now,
-    }
-});
 
-const User=mongoose.model('User',useSchema);
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
+    },
+
+    role: {
+      type: String,
+      enum: ["student", "tutor", "admin"],
+      default: "student",
+    },
+
+    passwordHash: {
+      type: String,
+      required: true,
+    },
+
+    avatar_url: {
+      type: String,
+      default: "",
+    },
+
+    bio: {
+      type: String,
+      default: "",
+    },
+
+    subjects: {
+      type: [String],
+      default: [],
+    },
+
+    availability: [
+      {
+        day: { type: String },
+        from: { type: String },
+        to: { type: String },
+      }
+    ]
+  },
+
+  { timestamps: true } 
+);
+
+const User = mongoose.model("User", userSchema);
 export default User;
